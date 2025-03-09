@@ -1,13 +1,25 @@
-import 'package:ai_chat_bot/presentation/base/ui/base_page.dart';
 import 'package:ai_chat_bot/presentation/chat/ui/chat_page.dart';
 import 'package:ai_chat_bot/utils/open_ai_client.dart';
 import 'package:ai_chat_bot/utils/service_locator.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-Future<void> main() async {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+
   OpenAIClient.initClient();
   ServiceLocator().setupLocator();
-  runApp(const MyApp());
+
+  runApp(
+    EasyLocalization(
+      supportedLocales: [Locale('en', 'US'), Locale('vi', 'VN')],
+      path: 'assets/translations',
+      fallbackLocale: Locale('en', 'US'),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,16 +27,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'OpenAI Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const BasePage(
-        title: 'Chat',
-        body: ChatPage(),
-      ),
-    );
+    return ScreenUtilInit(
+        designSize: const Size(1920, 1080),
+        builder: (context, child) {
+          return MaterialApp(
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            title: 'OpenAI Flutter Demo',
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+              useMaterial3: true,
+            ),
+            home: ChatPage(),
+          );
+        });
   }
 }

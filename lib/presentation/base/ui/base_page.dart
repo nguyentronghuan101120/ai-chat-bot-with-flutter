@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
-class BasePage extends StatefulWidget {
-  const BasePage({super.key, required this.title, required this.body});
+class BasePage extends StatelessWidget {
+  const BasePage(
+      {super.key,
+      this.title,
+      required this.bodyForMobile,
+      required this.bodyForDesktop});
 
-  final String title;
-  final Widget body;
+  final String? title;
 
-  @override
-  State<BasePage> createState() => _BasePageState();
-}
+  final Widget bodyForMobile;
+  final Widget bodyForDesktop;
 
-class _BasePageState extends State<BasePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,11 +23,19 @@ class _BasePageState extends State<BasePage> {
         ),
       ),
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title ?? ''),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: widget.body,
+        padding: const EdgeInsets.all(16.0),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth > 768) {
+              return bodyForDesktop;
+            } else {
+              return bodyForMobile;
+            }
+          },
+        ),
       ),
     );
   }

@@ -1,4 +1,4 @@
-import 'package:dart_openai/dart_openai.dart';
+import 'package:ai_chat_bot/data/models/ui_model/chat_model.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class ChatState extends Equatable {
@@ -10,12 +10,19 @@ sealed class ChatState extends Equatable {
 
 final class ChatInitial extends ChatState {}
 
-final class ChatLoading extends ChatState {}
+final class InChattingWithBot extends ChatState {
+  final List<ChatModel> messages;
 
-final class ChatLoaded extends ChatState {
-  final List<OpenAIChatCompletionChoiceMessageModel> messages;
+  const InChattingWithBot(this.messages);
 
-  const ChatLoaded(this.messages);
+  @override
+  List<Object> get props => [messages];
+}
+
+final class BotChatGenerating extends ChatState {
+  final List<ChatModel> messages;
+
+  const BotChatGenerating(this.messages);
 
   @override
   List<Object> get props => [messages];
