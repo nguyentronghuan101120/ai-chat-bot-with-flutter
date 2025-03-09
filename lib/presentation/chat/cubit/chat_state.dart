@@ -28,6 +28,10 @@ final class BotChatGenerating extends ChatState {
   List<Object> get props => [messages];
 }
 
+final class BotChatGenerateStopped extends ChatState {
+  const BotChatGenerateStopped();
+}
+
 final class ChatError extends ChatState {
   final String message;
 

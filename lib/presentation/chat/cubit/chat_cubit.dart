@@ -14,23 +14,22 @@ class ChatCubit extends Cubit<ChatState> {
 
     _chatRepository
         .sendMessageStream(chatHistories.map((e) => e.message).toList())
-        .listen(
-      (event) {
-        final latestMessage =
-            event.choices.first.delta.content?.first?.text ?? '';
+        .listen((event) {
+      final latestMessage =
+          event.choices.first.delta.content?.first?.text ?? '';
 
-        if (_isLastMessageFromAssistant(chatHistories)) {
-          _updateLastAssistantMessage(chatHistories, latestMessage);
-        } else {
-          _addNewAssistantMessage(chatHistories, latestMessage);
-        }
+      if (_isLastMessageFromAssistant(chatHistories)) {
+        _updateLastAssistantMessage(chatHistories, latestMessage);
+      } else {
+        _addNewAssistantMessage(chatHistories, latestMessage);
+      }
 
-        emit(BotChatGenerating(List.from(chatHistories)));
-      },
-      onError: (error) {
-        emit(ChatError(error.toString()));
-      },
-    );
+      emit(BotChatGenerating(List.from(chatHistories)));
+    }, onError: (error) {
+      emit(ChatError(error.toString()));
+    }, onDone: () {
+      emit(BotChatGenerateStopped());
+    });
   }
 
   bool _isLastMessageFromAssistant(List<ChatModel> chatHistories) {

@@ -68,6 +68,8 @@ class InitialChatWidget extends StatelessWidget {
                   SizedBox(height: 40.h),
                   if (!isMobile) ...[
                     ChatBarWidget(
+                      onStop: () {},
+                      isStreaming: false,
                       onSubmit: (msg) => _handleMessageSubmit(context, msg),
                     ),
                     SizedBox(height: 20.h),
@@ -79,7 +81,10 @@ class InitialChatWidget extends StatelessWidget {
           ),
           if (isMobile)
             ChatBarWidget(
-                onSubmit: (msg) => _handleMessageSubmit(context, msg)),
+              onStop: () {},
+              isStreaming: false,
+              onSubmit: (msg) => _handleMessageSubmit(context, msg),
+            ),
         ],
       ),
     );

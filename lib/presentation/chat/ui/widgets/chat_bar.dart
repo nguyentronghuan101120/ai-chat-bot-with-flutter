@@ -4,8 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ChatBarWidget extends StatefulWidget {
-  const ChatBarWidget({super.key, required this.onSubmit});
+  const ChatBarWidget({
+    super.key,
+    required this.onSubmit,
+    required this.onStop,
+    required this.isStreaming,
+  });
   final Function(String) onSubmit;
+  final VoidCallback onStop;
+  final bool isStreaming;
 
   @override
   ChatBarWidgetState createState() => ChatBarWidgetState();
@@ -14,6 +21,18 @@ class ChatBarWidget extends StatefulWidget {
 class ChatBarWidgetState extends State<ChatBarWidget> {
   final TextEditingController messageController = TextEditingController();
   final FocusNode focusNode = FocusNode();
+
+  bool isStreaming = false;
+
+  @override
+  void didUpdateWidget(ChatBarWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isStreaming != oldWidget.isStreaming) {
+      setState(() {
+        isStreaming = widget.isStreaming;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -102,16 +121,21 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white),
-                      onPressed: () {
-                        if (messageController.text.isNotEmpty) {
-                          widget.onSubmit(messageController.text);
-                          messageController.clear();
-                          focusNode.requestFocus();
-                        }
-                      },
-                    ),
+                    child: isStreaming
+                        ? IconButton(
+                            icon: const Icon(Icons.stop, color: Colors.white),
+                            onPressed: widget.onStop,
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.send, color: Colors.white),
+                            onPressed: () {
+                              if (messageController.text.isNotEmpty) {
+                                widget.onSubmit(messageController.text);
+                                messageController.clear();
+                                focusNode.requestFocus();
+                              }
+                            },
+                          ),
                   ),
                 ],
               ),

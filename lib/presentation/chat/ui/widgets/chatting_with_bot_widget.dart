@@ -6,30 +6,19 @@ import 'package:ai_chat_bot/presentation/chat/ui/widgets/chat_bar.dart';
 import 'package:ai_chat_bot/presentation/common/loading_widget.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ChattingWithBotWidget extends StatefulWidget {
-  const ChattingWithBotWidget({
-    super.key,
-  });
+  const ChattingWithBotWidget({super.key});
 
   @override
   State<ChattingWithBotWidget> createState() => _ChattingWithBotWidgetState();
 }
 
 class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return BasePage(
-      title: 'Chat',
-      bodyForMobile: _buildBody(context),
-      bodyForDesktop: _buildBody(context),
-    );
-  }
-
   final ScrollController _scrollController = ScrollController();
-
   final List<ChatModel> _chatHistories = [];
 
   void _handleMessageSubmit(BuildContext context, String message) async {
@@ -56,9 +45,24 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
     context.read<ChatCubit>().sendMessage(_chatHistories);
   }
 
+  bool _isAtBottom = true; // Track whether the user is at the bottom
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+
+    // Check if the user is at the bottom
+    _isAtBottom = (maxScroll - currentScroll).abs() < 100.h; // 10px tolerance
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
+      if (_scrollController.hasClients &&
+          _isAtBottom &&
+          _scrollController.position.userScrollDirection ==
+              ScrollDirection.idle) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
@@ -68,11 +72,26 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   Widget _buildBody(BuildContext context) {
     return Column(
       children: [
         Expanded(
           child: BlocBuilder<ChatCubit, ChatState>(
+            buildWhen: (previous, current) =>
+                current is InChattingWithBot || current is BotChatGenerating,
             builder: (context, state) {
               List<ChatModel> chatHistories = [];
               if (state is InChattingWithBot || state is BotChatGenerating) {
@@ -94,7 +113,8 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
                     _scrollToBottom();
                   }
                   return _MessageBubble(
-                    message: _chatHistories[index].message,
+                    textMessage:
+                        _chatHistories[index].message.content?.first.text ?? '',
                     isUserMessage: _chatHistories[index].message.role ==
                         OpenAIChatMessageRole.user,
                     isLoading: _chatHistories[index].isLoading,
@@ -104,22 +124,43 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
             },
           ),
         ),
-        ChatBarWidget(onSubmit: (msg) async {
-          _scrollToBottom();
-          _handleMessageSubmit(context, msg);
-        }),
+        BlocBuilder<ChatCubit, ChatState>(
+          buildWhen: (previous, current) =>
+              current is InChattingWithBot || current is BotChatGenerateStopped,
+          builder: (context, state) {
+            return ChatBarWidget(
+              onSubmit: (msg) async {
+                _scrollToBottom();
+                _handleMessageSubmit(context, msg);
+              },
+              onStop: () {
+                // context.read<ChatCubit>().stopChat();
+              },
+              isStreaming: state is InChattingWithBot,
+            );
+          },
+        ),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BasePage(
+      title: 'Chat',
+      bodyForMobile: _buildBody(context),
+      bodyForDesktop: _buildBody(context),
     );
   }
 }
 
 class _MessageBubble extends StatelessWidget {
-  final OpenAIChatCompletionChoiceMessageModel message;
+  final String textMessage;
   final bool isUserMessage;
   final bool isLoading;
 
   const _MessageBubble({
-    required this.message,
+    required this.textMessage,
     required this.isUserMessage,
     required this.isLoading,
   });
@@ -127,29 +168,41 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       child: Align(
-        alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: 768,
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: isUserMessage ? Colors.black54 : Colors.grey[200],
-            borderRadius: BorderRadius.circular(16).copyWith(
-              bottomRight: isUserMessage ? Radius.circular(2) : null,
-            ),
-          ),
-          child: isLoading && !isUserMessage
-              ? const LoadingWidget()
-              : Text(
-                  message.content?.first.text ?? '',
-                  style: TextStyle(
-                    color: isUserMessage ? Colors.white : Colors.black87,
-                    fontSize: 16,
+        alignment: Alignment.center,
+        child: SizedBox(
+          width: 768,
+          child: Stack(
+            children: [
+              Align(
+                alignment: isUserMessage
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isUserMessage ? Colors.black54 : null,
+                    borderRadius: BorderRadius.circular(16).copyWith(
+                      bottomRight:
+                          isUserMessage ? const Radius.circular(2) : null,
+                    ),
                   ),
+                  child: isLoading && !isUserMessage
+                      ? const LoadingWidget()
+                      : Text(
+                          textMessage,
+                          style: TextStyle(
+                            color:
+                                isUserMessage ? Colors.white : Colors.black87,
+                            fontSize: 16,
+                          ),
+                        ),
                 ),
+              ),
+            ],
+          ),
         ),
       ),
     );

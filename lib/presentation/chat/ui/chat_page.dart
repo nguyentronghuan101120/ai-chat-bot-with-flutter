@@ -15,8 +15,9 @@ class ChatPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => ChatCubit(getIt<ChatRepository>()),
       child: BlocBuilder<ChatCubit, ChatState>(
+        buildWhen: (previous, current) => current is InChattingWithBot,
         builder: (context, state) {
-          if (state is BotChatGenerating || state is InChattingWithBot) {
+          if (state is InChattingWithBot) {
             return ChattingWithBotWidget();
           }
 
