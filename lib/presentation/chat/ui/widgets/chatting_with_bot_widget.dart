@@ -9,11 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class ChattingWithBotWidget extends StatelessWidget {
-  ChattingWithBotWidget({
+class ChattingWithBotWidget extends StatefulWidget {
+  const ChattingWithBotWidget({
     super.key,
   });
 
+  @override
+  State<ChattingWithBotWidget> createState() => _ChattingWithBotWidgetState();
+}
+
+class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
   @override
   Widget build(BuildContext context) {
     return BasePage(
@@ -81,7 +86,7 @@ class ChattingWithBotWidget extends StatelessWidget {
               }
 
               return ListView.builder(
-                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+                padding: EdgeInsets.symmetric(vertical: 12.h),
                 itemCount: _chatHistories.length,
                 controller: _scrollController,
                 itemBuilder: (context, index) {

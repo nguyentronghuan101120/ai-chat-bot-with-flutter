@@ -3,6 +3,7 @@ import 'package:ai_chat_bot/data/models/ui_model/chat_model.dart';
 import 'package:ai_chat_bot/gen/locale_keys.g.dart';
 import 'package:ai_chat_bot/presentation/base/ui/base_page.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_cubit.dart';
+import 'package:ai_chat_bot/presentation/chat/ui/widgets/chat_bar.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +15,11 @@ class InitialChatWidget extends StatelessWidget {
 
   void _handleMessageSubmit(BuildContext context, String message) {
     final chatHistory = [
-      ChatModel(
-        message: SystemPrompt().systemPrompt,
-        isLoading: false,
-      ),
+      ChatModel(message: SystemPrompt().systemPrompt, isLoading: false),
       ChatModel(
         message: OpenAIChatCompletionChoiceMessageModel(
           content: [
-            OpenAIChatCompletionChoiceMessageContentItemModel.text(message),
+            OpenAIChatCompletionChoiceMessageContentItemModel.text(message)
           ],
           role: OpenAIChatMessageRole.user,
         ),
@@ -29,9 +27,7 @@ class InitialChatWidget extends StatelessWidget {
       ),
       ChatModel(
         message: OpenAIChatCompletionChoiceMessageModel(
-          content: [
-            OpenAIChatCompletionChoiceMessageContentItemModel.text(''),
-          ],
+          content: [OpenAIChatCompletionChoiceMessageContentItemModel.text('')],
           role: OpenAIChatMessageRole.assistant,
         ),
         isLoading: true,
@@ -44,102 +40,71 @@ class InitialChatWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BasePage(
       title: 'Chat',
-      bodyForMobile: _buildBody(context),
-      bodyForDesktop: _buildBody(context),
+      bodyForMobile: _buildChatLayout(context, isMobile: true),
+      bodyForDesktop: _buildChatLayout(context, isMobile: false),
     );
   }
 
-  Widget _buildBody(BuildContext context) {
-    final TextEditingController textEditingController = TextEditingController();
-
+  Widget _buildChatLayout(BuildContext context, {required bool isMobile}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  LocaleKeys.helloUser.tr(),
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  LocaleKeys.howCanIHelp.tr(),
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 40.h),
-                Container(
-                  constraints: BoxConstraints(maxWidth: 768),
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: textEditingController,
-                            decoration: InputDecoration(
-                              hintText: LocaleKeys.whatDoYouWantToKnow.tr(),
-                              hintStyle: TextStyle(color: Colors.white),
-                              border: InputBorder.none,
-                            ),
-                            cursorColor: Colors.white,
-                            style: const TextStyle(color: Colors.white),
-                            onSubmitted: (value) {
-                              if (value.isNotEmpty) {
-                                _handleMessageSubmit(
-                                    context, textEditingController.text);
-                              }
-                            },
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.arrow_upward,
-                              color: Colors.white),
-                          onPressed: () {
-                            if (textEditingController.text.isNotEmpty) {
-                              _handleMessageSubmit(
-                                  context, textEditingController.text);
-                            }
-                          },
-                        ),
-                      ],
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: 16.w, vertical: isMobile ? 0 : 24.h),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(LocaleKeys.helloUser.tr(),
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center),
+                  SizedBox(height: 8.h),
+                  Text(LocaleKeys.howCanIHelp.tr(),
+                      style: const TextStyle(color: Colors.grey, fontSize: 16),
+                      textAlign: TextAlign.center),
+                  SizedBox(height: 40.h),
+                  if (!isMobile) ...[
+                    ChatBarWidget(
+                      onSubmit: (msg) => _handleMessageSubmit(context, msg),
                     ),
-                  ),
-                ),
-                SizedBox(height: 20.h),
-                Wrap(
-                  spacing: 12.w,
-                  children: [
-                    _buildButton(LocaleKeys.deepSearch.tr(), Icons.search),
-                    _buildButton(LocaleKeys.think.tr(), Icons.lightbulb),
-                    _buildButton(LocaleKeys.research.tr(), Icons.manage_search),
-                    _buildButton(LocaleKeys.howTo.tr(), Icons.auto_stories),
-                    _buildButton(LocaleKeys.analyze.tr(), Icons.bar_chart),
-                    _buildButton(LocaleKeys.createImages.tr(), Icons.image),
-                    _buildButton(LocaleKeys.code.tr(), Icons.code),
+                    SizedBox(height: 20.h),
                   ],
-                ),
-              ],
+                  _buildButtonGrid(),
+                ],
+              ),
             ),
-          )
+          ),
+          if (isMobile)
+            ChatBarWidget(
+                onSubmit: (msg) => _handleMessageSubmit(context, msg)),
         ],
       ),
     );
   }
 
+  Widget _buildButtonGrid() {
+    final buttons = [
+      (LocaleKeys.deepSearch.tr(), Icons.search),
+      (LocaleKeys.think.tr(), Icons.lightbulb),
+      (LocaleKeys.research.tr(), Icons.manage_search),
+      (LocaleKeys.howTo.tr(), Icons.auto_stories),
+      (LocaleKeys.analyze.tr(), Icons.bar_chart),
+      (LocaleKeys.createImages.tr(), Icons.image),
+      (LocaleKeys.code.tr(), Icons.code),
+    ];
+    return Wrap(
+      spacing: 12.w,
+      runSpacing: 12.h,
+      children: buttons.map((btn) => _buildButton(btn.$1, btn.$2)).toList(),
+    );
+  }
+
   Widget _buildButton(String text, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.all(2),
+    return SizedBox(
+      height: 40,
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.black54,

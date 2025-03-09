@@ -27,14 +27,16 @@ class BasePage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth > 768) {
-              return bodyForDesktop;
-            } else {
-              return bodyForMobile;
-            }
-          },
+        child: Center(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 768) {
+                return bodyForDesktop;
+              } else {
+                return bodyForMobile;
+              }
+            },
+          ),
         ),
       ),
     );
