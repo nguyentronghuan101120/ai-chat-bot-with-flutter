@@ -29,7 +29,9 @@ final class BotChatGenerating extends ChatState {
 }
 
 final class BotChatGenerateStopped extends ChatState {
-  const BotChatGenerateStopped();
+  final List<ChatModel> messages;
+
+  const BotChatGenerateStopped(this.messages);
 }
 
 final class ChatError extends ChatState {

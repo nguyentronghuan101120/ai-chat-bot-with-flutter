@@ -54,7 +54,7 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
     final currentScroll = _scrollController.position.pixels;
 
     // Check if the user is at the bottom
-    _isAtBottom = (maxScroll - currentScroll).abs() < 100.h; // 10px tolerance
+    _isAtBottom = (maxScroll - currentScroll).abs() < 50.h; // 10px tolerance
   }
 
   void _scrollToBottom() {
@@ -90,22 +90,17 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
       children: [
         Expanded(
           child: BlocBuilder<ChatCubit, ChatState>(
-            buildWhen: (previous, current) =>
-                current is InChattingWithBot || current is BotChatGenerating,
             builder: (context, state) {
               List<ChatModel> chatHistories = [];
-              if (state is InChattingWithBot || state is BotChatGenerating) {
-                chatHistories = (state as dynamic).messages;
-                chatHistories = chatHistories
-                    .where(
-                        (m) => m.message.role != OpenAIChatMessageRole.system)
-                    .toList();
-                _chatHistories.clear();
-                _chatHistories.addAll(chatHistories);
-              }
+              chatHistories = (state as dynamic).messages;
+              chatHistories = chatHistories
+                  .where((m) => m.message.role != OpenAIChatMessageRole.system)
+                  .toList();
+              _chatHistories.clear();
+              _chatHistories.addAll(chatHistories);
 
               return ListView.builder(
-                padding: EdgeInsets.symmetric(vertical: 12.h),
+                padding: EdgeInsets.symmetric(vertical: 12),
                 itemCount: _chatHistories.length,
                 controller: _scrollController,
                 itemBuilder: (context, index) {
@@ -113,10 +108,8 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
                     _scrollToBottom();
                   }
                   return _MessageBubble(
-                    textMessage:
-                        _chatHistories[index].message.content?.first.text ?? '',
-                    isUserMessage: _chatHistories[index].message.role ==
-                        OpenAIChatMessageRole.user,
+                    content: _chatHistories[index].message.content,
+                    messageRole: _chatHistories[index].message.role,
                     isLoading: _chatHistories[index].isLoading,
                   );
                 },
@@ -128,15 +121,20 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
           buildWhen: (previous, current) =>
               current is InChattingWithBot || current is BotChatGenerateStopped,
           builder: (context, state) {
-            return ChatBarWidget(
-              onSubmit: (msg) async {
-                _scrollToBottom();
-                _handleMessageSubmit(context, msg);
-              },
-              onStop: () {
-                // context.read<ChatCubit>().stopChat();
-              },
-              isStreaming: state is InChattingWithBot,
+            return Padding(
+              padding: EdgeInsets.only(bottom: 40),
+              child: ChatBarWidget(
+                onSubmit: (msg) async {
+                  if (state is! InChattingWithBot) {
+                    _scrollToBottom();
+                    _handleMessageSubmit(context, msg);
+                  }
+                },
+                onStop: () {
+                  // context.read<ChatCubit>().stopChat();
+                },
+                isStreaming: state is InChattingWithBot,
+              ),
             );
           },
         ),
@@ -155,20 +153,21 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
 }
 
 class _MessageBubble extends StatelessWidget {
-  final String textMessage;
-  final bool isUserMessage;
+  final List<OpenAIChatCompletionChoiceMessageContentItemModel>? content;
+  final OpenAIChatMessageRole messageRole;
   final bool isLoading;
 
   const _MessageBubble({
-    required this.textMessage,
-    required this.isUserMessage,
+    this.content,
+    required this.messageRole,
     required this.isLoading,
   });
 
   @override
   Widget build(BuildContext context) {
+    final content = this.content;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: 16),
       child: Align(
         alignment: Alignment.center,
         child: SizedBox(
@@ -176,28 +175,70 @@ class _MessageBubble extends StatelessWidget {
           child: Stack(
             children: [
               Align(
-                alignment: isUserMessage
+                alignment: messageRole == OpenAIChatMessageRole.user
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isUserMessage ? Colors.black54 : null,
+                    color: messageRole == OpenAIChatMessageRole.user
+                        ? Colors.black54
+                        : null,
                     borderRadius: BorderRadius.circular(16).copyWith(
-                      bottomRight:
-                          isUserMessage ? const Radius.circular(2) : null,
+                      bottomRight: messageRole == OpenAIChatMessageRole.user
+                          ? const Radius.circular(2)
+                          : null,
                     ),
                   ),
-                  child: isLoading && !isUserMessage
+                  child: isLoading && messageRole != OpenAIChatMessageRole.user
                       ? const LoadingWidget()
-                      : Text(
-                          textMessage,
-                          style: TextStyle(
-                            color:
-                                isUserMessage ? Colors.white : Colors.black87,
-                            fontSize: 16,
-                          ),
+                      : Column(
+                          children: content?.map((item) {
+                                final text = item.text;
+
+                                if (text != null) {
+                                  final isUrl =
+                                      Uri.tryParse(text)?.hasAbsolutePath ??
+                                          false;
+
+                                  if (isUrl) {
+                                    return Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth: 512.w,
+                                        maxHeight: 512.h,
+                                      ),
+                                      child: Image.network(
+                                        text,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return const Icon(Icons.error);
+                                        },
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child;
+                                          }
+                                          return LoadingWidget();
+                                        },
+                                      ),
+                                    );
+                                  }
+
+                                  return SelectableText(
+                                    text,
+                                    style: TextStyle(
+                                      color: messageRole ==
+                                              OpenAIChatMessageRole.user
+                                          ? Colors.white
+                                          : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              }).toList() ??
+                              [],
                         ),
                 ),
               ),

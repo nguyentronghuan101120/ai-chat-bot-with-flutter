@@ -46,47 +46,47 @@ class InitialChatWidget extends StatelessWidget {
   }
 
   Widget _buildChatLayout(BuildContext context, {required bool isMobile}) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 16.w, vertical: isMobile ? 0 : 24.h),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(LocaleKeys.helloUser.tr(),
-                      style: const TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center),
-                  SizedBox(height: 8.h),
-                  Text(LocaleKeys.howCanIHelp.tr(),
-                      style: const TextStyle(color: Colors.grey, fontSize: 16),
-                      textAlign: TextAlign.center),
-                  SizedBox(height: 40.h),
-                  if (!isMobile) ...[
-                    ChatBarWidget(
-                      onStop: () {},
-                      isStreaming: false,
-                      onSubmit: (msg) => _handleMessageSubmit(context, msg),
-                    ),
-                    SizedBox(height: 20.h),
-                  ],
-                  _buildButtonGrid(),
-                ],
-              ),
-            ),
+    return Stack(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: 16.w, vertical: isMobile ? 0 : 24.h),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(LocaleKeys.helloUser.tr(),
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center),
+              SizedBox(height: 8.h),
+              Text(LocaleKeys.howCanIHelp.tr(),
+                  style: const TextStyle(color: Colors.grey, fontSize: 16),
+                  textAlign: TextAlign.center),
+              SizedBox(height: 40.h),
+              if (!isMobile) ...[
+                ChatBarWidget(
+                  onStop: () {},
+                  isStreaming: false,
+                  onSubmit: (msg) => _handleMessageSubmit(context, msg),
+                ),
+                SizedBox(height: 20.h),
+              ],
+              _buildButtonGrid(),
+            ],
           ),
-          if (isMobile)
-            ChatBarWidget(
+        ),
+        if (isMobile)
+          Positioned(
+            bottom: 40.h,
+            left: 0,
+            right: 0,
+            child: ChatBarWidget(
               onStop: () {},
               isStreaming: false,
               onSubmit: (msg) => _handleMessageSubmit(context, msg),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 

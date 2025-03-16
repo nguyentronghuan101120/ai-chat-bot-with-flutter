@@ -8,7 +8,8 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl(this.chatDataProvider);
 
   @override
-  Stream<OpenAIStreamChatCompletionModel> sendMessageStream(List<OpenAIChatCompletionChoiceMessageModel> messages) async* {
+  Stream<OpenAIStreamChatCompletionModel> sendMessageStream(
+      List<OpenAIChatCompletionChoiceMessageModel> messages) async* {
     yield* chatDataProvider.sendMessageStream(messages);
   }
 }
