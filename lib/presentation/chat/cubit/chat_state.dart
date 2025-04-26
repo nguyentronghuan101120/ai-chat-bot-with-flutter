@@ -1,4 +1,4 @@
-import 'package:ai_chat_bot/data/models/ui_model/chat_model.dart';
+import 'package:ai_chat_bot/domain/entities/chat_entity.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class ChatState extends Equatable {
@@ -11,7 +11,7 @@ sealed class ChatState extends Equatable {
 final class ChatInitial extends ChatState {}
 
 final class InChattingWithBot extends ChatState {
-  final List<ChatModel> messages;
+  final List<ChatEntity> messages;
 
   const InChattingWithBot(this.messages);
 
@@ -20,7 +20,7 @@ final class InChattingWithBot extends ChatState {
 }
 
 final class BotChatGenerating extends ChatState {
-  final List<ChatModel> messages;
+  final List<ChatEntity> messages;
 
   const BotChatGenerating(this.messages);
 
@@ -29,9 +29,12 @@ final class BotChatGenerating extends ChatState {
 }
 
 final class BotChatGenerateStopped extends ChatState {
-  final List<ChatModel> messages;
+  final List<ChatEntity> messages;
 
   const BotChatGenerateStopped(this.messages);
+
+  @override
+  List<Object> get props => [messages];
 }
 
 final class ChatError extends ChatState {

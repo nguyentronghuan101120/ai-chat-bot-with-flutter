@@ -1,10 +1,10 @@
+import 'package:ai_chat_bot/constants/enum.dart';
 import 'package:ai_chat_bot/constants/system_prompt.dart';
-import 'package:ai_chat_bot/data/models/ui_model/chat_model.dart';
+import 'package:ai_chat_bot/domain/entities/chat_entity.dart';
 import 'package:ai_chat_bot/gen/locale_keys.g.dart';
 import 'package:ai_chat_bot/presentation/base/ui/base_page.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_cubit.dart';
 import 'package:ai_chat_bot/presentation/chat/ui/widgets/chat_bar.dart';
-import 'package:dart_openai/dart_openai.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,22 +15,17 @@ class InitialChatWidget extends StatelessWidget {
 
   void _handleMessageSubmit(BuildContext context, String message) {
     final chatHistory = [
-      ChatModel(message: SystemPrompt().systemPrompt, isLoading: false),
-      ChatModel(
-        message: OpenAIChatCompletionChoiceMessageModel(
-          content: [
-            OpenAIChatCompletionChoiceMessageContentItemModel.text(message)
-          ],
-          role: OpenAIChatMessageRole.user,
-        ),
+      ChatEntity(
+          message: systemPrompt, isLoading: false, role: ChatRole.system),
+      ChatEntity(
+        message: message,
         isLoading: false,
+        role: ChatRole.user,
       ),
-      ChatModel(
-        message: OpenAIChatCompletionChoiceMessageModel(
-          content: [OpenAIChatCompletionChoiceMessageContentItemModel.text('')],
-          role: OpenAIChatMessageRole.assistant,
-        ),
+      ChatEntity(
+        message: '',
         isLoading: true,
+        role: ChatRole.assistant,
       ),
     ];
     context.read<ChatCubit>().sendMessage(chatHistory);

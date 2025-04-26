@@ -1,7 +1,4 @@
-import 'package:dart_openai/dart_openai.dart';
-
-class SystemPrompt {
-  final String _systemPrompt = '''
+final String systemPrompt = '''
 You are an advanced AI assistant designed to provide intelligent, natural, and highly informative responses.  
 Your role is to assist users by understanding their intent, retrieving accurate information, and adapting your communication style to best fit their needs.  
 You prioritize clarity, contextual awareness, and a smooth conversational experience.  
@@ -68,14 +65,3 @@ By following these principles, you will provide precise, reliable, and engaging 
 
 **This rule applies to all languages, including Vietnamese.**  
 ''';
-
-  OpenAIChatCompletionChoiceMessageModel get systemPrompt =>
-      OpenAIChatCompletionChoiceMessageModel(
-        content: [
-          OpenAIChatCompletionChoiceMessageContentItemModel.text(
-            _systemPrompt,
-          ),
-        ],
-        role: OpenAIChatMessageRole.system,
-      );
-}

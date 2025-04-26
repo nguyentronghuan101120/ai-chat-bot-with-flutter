@@ -9,5 +9,6 @@
   "howTo": "How to",
   "analyze": "Analyze",
   "createImages": "Create images",
-  "code": "Code"
+  "code": "Code",
+  "toolCallProcessing": "Processing tool call will take a few seconds, please wait..."
 }

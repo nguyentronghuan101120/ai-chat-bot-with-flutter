@@ -1,5 +1,4 @@
 import 'package:ai_chat_bot/presentation/chat/ui/chat_page.dart';
-import 'package:ai_chat_bot/utils/open_ai_client.dart';
 import 'package:ai_chat_bot/utils/service_locator.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
-  OpenAIClient.initClient();
   ServiceLocator().setupLocator();
 
   runApp(

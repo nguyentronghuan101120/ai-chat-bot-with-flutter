@@ -1,10 +1,10 @@
-import 'package:ai_chat_bot/data/models/ui_model/chat_model.dart';
+import 'package:ai_chat_bot/constants/enum.dart';
+import 'package:ai_chat_bot/domain/entities/chat_entity.dart';
 import 'package:ai_chat_bot/presentation/base/ui/base_page.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_cubit.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_state.dart';
 import 'package:ai_chat_bot/presentation/chat/ui/widgets/chat_bar.dart';
 import 'package:ai_chat_bot/presentation/common/loading_widget.dart';
-import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,27 +19,19 @@ class ChattingWithBotWidget extends StatefulWidget {
 
 class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
   final ScrollController _scrollController = ScrollController();
-  final List<ChatModel> _chatHistories = [];
+  final List<ChatEntity> _chatHistories = [];
 
   void _handleMessageSubmit(BuildContext context, String message) async {
     _chatHistories.addAll([
-      ChatModel(
+      ChatEntity(
         isLoading: false,
-        message: OpenAIChatCompletionChoiceMessageModel(
-          content: [
-            OpenAIChatCompletionChoiceMessageContentItemModel.text(message),
-          ],
-          role: OpenAIChatMessageRole.user,
-        ),
+        message: message,
+        role: ChatRole.user,
       ),
-      ChatModel(
+      ChatEntity(
         isLoading: true,
-        message: OpenAIChatCompletionChoiceMessageModel(
-          content: [
-            OpenAIChatCompletionChoiceMessageContentItemModel.text(''),
-          ],
-          role: OpenAIChatMessageRole.assistant,
-        ),
+        message: '',
+        role: ChatRole.assistant,
       ),
     ]);
     context.read<ChatCubit>().sendMessage(_chatHistories);
@@ -91,10 +83,10 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
         Expanded(
           child: BlocBuilder<ChatCubit, ChatState>(
             builder: (context, state) {
-              List<ChatModel> chatHistories = [];
+              List<ChatEntity> chatHistories = [];
               chatHistories = (state as dynamic).messages;
               chatHistories = chatHistories
-                  .where((m) => m.message.role != OpenAIChatMessageRole.system)
+                  .where((m) => m.role != ChatRole.system)
                   .toList();
               _chatHistories.clear();
               _chatHistories.addAll(chatHistories);
@@ -108,9 +100,7 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
                     _scrollToBottom();
                   }
                   return _MessageBubble(
-                    content: _chatHistories[index].message.content,
-                    messageRole: _chatHistories[index].message.role,
-                    isLoading: _chatHistories[index].isLoading,
+                    content: _chatHistories[index],
                   );
                 },
               );
@@ -153,14 +143,9 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
 }
 
 class _MessageBubble extends StatelessWidget {
-  final List<OpenAIChatCompletionChoiceMessageContentItemModel>? content;
-  final OpenAIChatMessageRole messageRole;
-  final bool isLoading;
-
+  final ChatEntity content;
   const _MessageBubble({
-    this.content,
-    required this.messageRole,
-    required this.isLoading,
+    required this.content,
   });
 
   @override
@@ -175,70 +160,65 @@ class _MessageBubble extends StatelessWidget {
           child: Stack(
             children: [
               Align(
-                alignment: messageRole == OpenAIChatMessageRole.user
+                alignment: content.role == ChatRole.user
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: messageRole == OpenAIChatMessageRole.user
-                        ? Colors.black54
-                        : null,
+                    color:
+                        content.role == ChatRole.user ? Colors.black54 : null,
                     borderRadius: BorderRadius.circular(16).copyWith(
-                      bottomRight: messageRole == OpenAIChatMessageRole.user
+                      bottomRight: content.role == ChatRole.user
                           ? const Radius.circular(2)
                           : null,
                     ),
                   ),
-                  child: isLoading && messageRole != OpenAIChatMessageRole.user
+                  child: content.isLoading && content.role != ChatRole.user
                       ? const LoadingWidget()
                       : Column(
-                          children: content?.map((item) {
-                                final text = item.text;
+                          children: [
+                            Builder(
+                              builder: (context) {
+                                final isUrl = Uri.tryParse(content.message)
+                                        ?.hasAbsolutePath ??
+                                    false;
 
-                                if (text != null) {
-                                  final isUrl =
-                                      Uri.tryParse(text)?.hasAbsolutePath ??
-                                          false;
-
-                                  if (isUrl) {
-                                    return Container(
-                                      constraints: BoxConstraints(
-                                        maxWidth: 512.w,
-                                        maxHeight: 512.h,
-                                      ),
-                                      child: Image.network(
-                                        text,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return const Icon(Icons.error);
-                                        },
-                                        loadingBuilder:
-                                            (context, child, loadingProgress) {
-                                          if (loadingProgress == null) {
-                                            return child;
-                                          }
-                                          return LoadingWidget();
-                                        },
-                                      ),
-                                    );
-                                  }
-
-                                  return SelectableText(
-                                    text,
-                                    style: TextStyle(
-                                      color: messageRole ==
-                                              OpenAIChatMessageRole.user
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontSize: 16,
+                                if (isUrl) {
+                                  return Container(
+                                    constraints: BoxConstraints(
+                                      maxWidth: 512.w,
+                                      maxHeight: 512.h,
+                                    ),
+                                    child: Image.network(
+                                      content.message,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return const Icon(Icons.error);
+                                      },
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return LoadingWidget();
+                                      },
                                     ),
                                   );
-                                } else {
-                                  return const SizedBox.shrink();
                                 }
-                              }).toList() ??
-                              [],
+
+                                return SelectableText(
+                                  content.message,
+                                  style: TextStyle(
+                                    color: content.role == ChatRole.user
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                 ),
               ),
