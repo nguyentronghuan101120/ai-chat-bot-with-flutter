@@ -18,13 +18,12 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<ChatEntity> streamChat(List<ChatEntity> messages) async* {
-    final newMessages = messages
+    final prompt = messages
         .map((e) => ChatMessage(role: e.role, content: e.message))
         .toList();
-    newMessages
-        .removeWhere((e) => e.role == ChatRole.assistant && e.content.isEmpty);
+
     final ChatRequest request = ChatRequest(
-      prompt: newMessages,
+      prompt: prompt,
     );
 
     final response = await _sources.streamChat(request) as ResponseBody;

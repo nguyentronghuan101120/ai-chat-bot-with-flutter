@@ -5,8 +5,4 @@ enum ChatRole {
   user,
   @JsonValue('assistant')
   assistant,
-  @JsonValue('tool')
-  tool,
-  @JsonValue('system')
-  system,
 }

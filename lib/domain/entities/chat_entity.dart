@@ -1,11 +1,11 @@
 import 'package:ai_chat_bot/constants/enum.dart';
-
-class ChatEntity {
+import 'package:equatable/equatable.dart';
+class ChatEntity extends Equatable {
   final String message;
   final ChatRole role;
   final bool isLoading;
 
-  ChatEntity({
+  const ChatEntity({
     required this.message,
     required this.role,
     required this.isLoading,
@@ -21,4 +21,7 @@ class ChatEntity {
         role: role ?? this.role,
         isLoading: isLoading ?? this.isLoading);
   }
+
+  @override
+  List<Object?> get props => [message, role, isLoading];
 }

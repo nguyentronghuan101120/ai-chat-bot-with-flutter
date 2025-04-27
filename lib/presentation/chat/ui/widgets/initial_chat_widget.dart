@@ -1,5 +1,4 @@
 import 'package:ai_chat_bot/constants/enum.dart';
-import 'package:ai_chat_bot/constants/system_prompt.dart';
 import 'package:ai_chat_bot/domain/entities/chat_entity.dart';
 import 'package:ai_chat_bot/gen/locale_keys.g.dart';
 import 'package:ai_chat_bot/presentation/base/ui/base_page.dart';
@@ -15,8 +14,6 @@ class InitialChatWidget extends StatelessWidget {
 
   void _handleMessageSubmit(BuildContext context, String message) {
     final chatHistory = [
-      ChatEntity(
-          message: systemPrompt, isLoading: false, role: ChatRole.system),
       ChatEntity(
         message: message,
         isLoading: false,
