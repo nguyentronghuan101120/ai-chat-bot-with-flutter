@@ -10,5 +10,10 @@
   "analyze": "Phân tích",
   "createImages": "Tạo hình ảnh",
   "code": "Mã",
-  "toolCallProcessing": "Xử lý tool sẽ mất chút thời gian, vui lòng chờ..."
+  "toolCallProcessing": "Xử lý tool sẽ mất chút thời gian, vui lòng chờ...",
+  "edit": "Chỉnh sửa",
+  "cancel": "Hủy bỏ",
+  "save": "Lưu",
+  "resend": "Gửi lại",
+  "copyAll": "Sao chép tất cả"
 }

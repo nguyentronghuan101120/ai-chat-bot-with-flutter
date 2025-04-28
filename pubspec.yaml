@@ -46,6 +46,8 @@ dependencies:
   json_annotation: ^4.9.0
   retrofit_generator: ^9.1.9
   cached_network_image: ^3.4.1
+  flutter_markdown: ^0.6.18
+  url_launcher: ^6.2.4
 
 dev_dependencies:
   flutter_test:

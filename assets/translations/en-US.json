@@ -10,5 +10,10 @@
   "analyze": "Analyze",
   "createImages": "Create images",
   "code": "Code",
-  "toolCallProcessing": "Processing tool call will take a few seconds, please wait..."
+  "toolCallProcessing": "Processing tool call will take a few seconds, please wait...",
+  "edit": "Edit",
+  "cancel": "Cancel",
+  "save": "Save",
+  "resend": "Resend",
+  "copyAll": "Copy All"
 }
