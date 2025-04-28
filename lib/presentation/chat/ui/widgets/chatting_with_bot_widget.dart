@@ -241,6 +241,14 @@ class _MessageBubble extends StatelessWidget {
                                         top: beforeImage.isNotEmpty ? 8 : 0,
                                         bottom: afterImage.isNotEmpty ? 8 : 0,
                                       ),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.grey[300]!,
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      clipBehavior: Clip.antiAlias,
                                       child: Platform.isMacOS
                                           ? Image.network(
                                               imageUrl,
