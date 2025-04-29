@@ -15,5 +15,9 @@
   "cancel": "Hủy bỏ",
   "save": "Lưu",
   "resend": "Gửi lại",
-  "copyAll": "Sao chép tất cả"
+  "copyAll": "Sao chép tất cả",
+  "discardChanges": "Bạn có chắc chắn muốn hủy bỏ thay đổi?",
+  "areYouSureYouWantToDiscardYourChanges": "Bạn có chắc chắn muốn hủy bỏ thay đổi?",
+  "ok": "OK",
+  "discard": "Hủy bỏ"
 }

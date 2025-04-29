@@ -15,5 +15,9 @@
   "cancel": "Cancel",
   "save": "Save",
   "resend": "Resend",
-  "copyAll": "Copy All"
+  "copyAll": "Copy All",
+  "discardChanges": "Discard Changes?",
+  "areYouSureYouWantToDiscardYourChanges": "Are you sure you want to discard your changes?",
+  "ok": "OK",
+  "discard": "Discard"
 }
