@@ -168,8 +168,6 @@ class _MessageBubble extends StatefulWidget {
 }
 
 class _MessageBubbleState extends State<_MessageBubble> {
-  bool _isHovered = false;
-  bool _isClicked = false;
   final TextEditingController _editController = TextEditingController();
 
   @override
@@ -238,177 +236,172 @@ class _MessageBubbleState extends State<_MessageBubble> {
             crossAxisAlignment:
                 isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() => _isClicked = !_isClicked);
-                },
-                child: Align(
-                  alignment:
-                      isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: backgroundColor,
-                      borderRadius: BorderRadius.circular(16).copyWith(
-                        bottomRight: isUser ? const Radius.circular(2) : null,
-                        bottomLeft: !isUser ? const Radius.circular(2) : null,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(100),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+              Align(
+                alignment:
+                    isUser ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(16).copyWith(
+                      bottomRight: isUser ? const Radius.circular(2) : null,
+                      bottomLeft: !isUser ? const Radius.circular(2) : null,
                     ),
-                    child: content.isLoading && !isUser
-                        ? const LoadingWidget()
-                        : Column(
-                            crossAxisAlignment: isUser
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
-                            children: [
-                              Builder(
-                                builder: (context) {
-                                  final (beforeImage, imageUrl, afterImage) =
-                                      _splitMessageAroundImage(content.message);
-
-                                  List<Widget> children = [];
-
-                                  if (beforeImage.isNotEmpty) {
-                                    children.add(
-                                      MarkdownBody(
-                                        data: beforeImage,
-                                        selectable: true,
-                                        onSelectionChanged:
-                                            (text, selection, cause) {},
-                                        styleSheet: MarkdownStyleSheet(
-                                          p: TextStyle(
-                                            color: textColor,
-                                            fontSize: 16,
-                                            height: 1.5,
-                                          ),
-                                          strong: TextStyle(
-                                            color: textColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          listBullet: TextStyle(
-                                            color: textColor,
-                                            fontSize: 16,
-                                          ),
-                                          a: TextStyle(
-                                            color: isUser
-                                                ? Colors.lightBlue[200]
-                                                : Colors.blue,
-                                            decoration:
-                                                TextDecoration.underline,
-                                          ),
-                                        ),
-                                        onTapLink: (text, href, title) {
-                                          if (href != null) {
-                                            _launchUrl(href);
-                                          }
-                                        },
-                                      ),
-                                    );
-                                  }
-
-                                  if (imageUrl != null &&
-                                      Uri.tryParse(imageUrl)?.hasAbsolutePath ==
-                                          true) {
-                                    children.add(
-                                      Container(
-                                        constraints: BoxConstraints(
-                                          maxWidth: 512.w,
-                                          maxHeight: 512.h,
-                                        ),
-                                        margin: EdgeInsets.only(
-                                          top: beforeImage.isNotEmpty ? 8 : 0,
-                                          bottom: afterImage.isNotEmpty ? 8 : 0,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.grey[300]!,
-                                            width: 1,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                        clipBehavior: Clip.antiAlias,
-                                        child: Platform.isMacOS
-                                            ? Image.network(
-                                                imageUrl,
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return const Icon(
-                                                      Icons.error);
-                                                },
-                                                loadingBuilder: (context, child,
-                                                    loadingProgress) {
-                                                  if (loadingProgress == null) {
-                                                    return child;
-                                                  }
-                                                  return const LoadingWidget();
-                                                },
-                                              )
-                                            : CachedNetworkImage(
-                                                imageUrl: imageUrl,
-                                                errorWidget:
-                                                    (context, url, error) =>
-                                                        const Icon(Icons.error),
-                                                fit: BoxFit.contain,
-                                              ),
-                                      ),
-                                    );
-                                  }
-
-                                  if (afterImage.isNotEmpty) {
-                                    children.add(
-                                      MarkdownBody(
-                                        data: afterImage,
-                                        selectable: true,
-                                        styleSheet: MarkdownStyleSheet(
-                                          p: TextStyle(
-                                            color: textColor,
-                                            fontSize: 16,
-                                            height: 1.5,
-                                          ),
-                                          strong: TextStyle(
-                                            color: textColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          listBullet: TextStyle(
-                                            color: textColor,
-                                            fontSize: 16,
-                                          ),
-                                          a: TextStyle(
-                                            color: isUser
-                                                ? Colors.lightBlue[200]
-                                                : Colors.blue,
-                                            decoration:
-                                                TextDecoration.underline,
-                                          ),
-                                        ),
-                                        onTapLink: (text, href, title) {
-                                          if (href != null) {
-                                            _launchUrl(href);
-                                          }
-                                        },
-                                      ),
-                                    );
-                                  }
-
-                                  return Column(
-                                    crossAxisAlignment: isUser
-                                        ? CrossAxisAlignment.end
-                                        : CrossAxisAlignment.start,
-                                    children: children,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(100),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
+                  child: content.isLoading && !isUser
+                      ? const LoadingWidget()
+                      : Column(
+                          crossAxisAlignment: isUser
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            Builder(
+                              builder: (context) {
+                                final (beforeImage, imageUrl, afterImage) =
+                                    _splitMessageAroundImage(content.message);
+              
+                                List<Widget> children = [];
+              
+                                if (beforeImage.isNotEmpty) {
+                                  children.add(
+                                    MarkdownBody(
+                                      data: beforeImage,
+                                      selectable: true,
+                                      onSelectionChanged:
+                                          (text, selection, cause) {},
+                                      styleSheet: MarkdownStyleSheet(
+                                        p: TextStyle(
+                                          color: textColor,
+                                          fontSize: 16,
+                                          height: 1.5,
+                                        ),
+                                        strong: TextStyle(
+                                          color: textColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        listBullet: TextStyle(
+                                          color: textColor,
+                                          fontSize: 16,
+                                        ),
+                                        a: TextStyle(
+                                          color: isUser
+                                              ? Colors.lightBlue[200]
+                                              : Colors.blue,
+                                          decoration:
+                                              TextDecoration.underline,
+                                        ),
+                                      ),
+                                      onTapLink: (text, href, title) {
+                                        if (href != null) {
+                                          _launchUrl(href);
+                                        }
+                                      },
+                                    ),
+                                  );
+                                }
+              
+                                if (imageUrl != null &&
+                                    Uri.tryParse(imageUrl)?.hasAbsolutePath ==
+                                        true) {
+                                  children.add(
+                                    Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth: 512.w,
+                                        maxHeight: 512.h,
+                                      ),
+                                      margin: EdgeInsets.only(
+                                        top: beforeImage.isNotEmpty ? 8 : 0,
+                                        bottom: afterImage.isNotEmpty ? 8 : 0,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.grey[300]!,
+                                          width: 1,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(16),
+                                      ),
+                                      clipBehavior: Clip.antiAlias,
+                                      child: Platform.isMacOS
+                                          ? Image.network(
+                                              imageUrl,
+                                              errorBuilder: (context, error,
+                                                  stackTrace) {
+                                                return const Icon(
+                                                    Icons.error);
+                                              },
+                                              loadingBuilder: (context, child,
+                                                  loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child;
+                                                }
+                                                return const LoadingWidget();
+                                              },
+                                            )
+                                          : CachedNetworkImage(
+                                              imageUrl: imageUrl,
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const Icon(Icons.error),
+                                              fit: BoxFit.contain,
+                                            ),
+                                    ),
+                                  );
+                                }
+              
+                                if (afterImage.isNotEmpty) {
+                                  children.add(
+                                    MarkdownBody(
+                                      data: afterImage,
+                                      selectable: true,
+                                      styleSheet: MarkdownStyleSheet(
+                                        p: TextStyle(
+                                          color: textColor,
+                                          fontSize: 16,
+                                          height: 1.5,
+                                        ),
+                                        strong: TextStyle(
+                                          color: textColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        listBullet: TextStyle(
+                                          color: textColor,
+                                          fontSize: 16,
+                                        ),
+                                        a: TextStyle(
+                                          color: isUser
+                                              ? Colors.lightBlue[200]
+                                              : Colors.blue,
+                                          decoration:
+                                              TextDecoration.underline,
+                                        ),
+                                      ),
+                                      onTapLink: (text, href, title) {
+                                        if (href != null) {
+                                          _launchUrl(href);
+                                        }
+                                      },
+                                    ),
+                                  );
+                                }
+              
+                                return Column(
+                                  crossAxisAlignment: isUser
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                                  children: children,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                 ),
               ),
               Row(
