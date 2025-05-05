@@ -5,6 +5,7 @@ import 'package:ai_chat_bot/presentation/base/ui/base_page.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_cubit.dart';
 import 'package:ai_chat_bot/presentation/chat/ui/widgets/chat_bar.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,12 +13,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class InitialChatWidget extends StatelessWidget {
   const InitialChatWidget({super.key});
 
-  void _handleMessageSubmit(BuildContext context, String message) {
+  void _handleMessageSubmit(BuildContext context, String message,
+      {List<PlatformFile>? files}) {
     final chatHistory = [
       ChatEntity(
         message: message,
         isLoading: false,
         role: ChatRole.user,
+        files: files,
       ),
       ChatEntity(
         message: '',
@@ -25,7 +28,10 @@ class InitialChatWidget extends StatelessWidget {
         role: ChatRole.assistant,
       ),
     ];
-    context.read<ChatCubit>().sendMessage(chatHistory);
+    context.read<ChatCubit>().sendMessage(
+          chatHistories: chatHistory,
+          files: files,
+        );
   }
 
   @override
@@ -59,7 +65,9 @@ class InitialChatWidget extends StatelessWidget {
                 ChatBarWidget(
                   onStop: () {},
                   isStreaming: false,
-                  onSubmit: (msg) => _handleMessageSubmit(context, msg),
+                  onSubmit: (msg, selectedFiles) =>
+                      _handleMessageSubmit(context, msg, files: selectedFiles),
+                
                 ),
                 SizedBox(height: 20.h),
               ],
@@ -75,7 +83,8 @@ class InitialChatWidget extends StatelessWidget {
             child: ChatBarWidget(
               onStop: () {},
               isStreaming: false,
-              onSubmit: (msg) => _handleMessageSubmit(context, msg),
+              onSubmit: (msg, selectedFiles) =>
+                  _handleMessageSubmit(context, msg, files: selectedFiles),
             ),
           ),
       ],

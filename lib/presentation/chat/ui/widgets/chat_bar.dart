@@ -1,7 +1,9 @@
 import 'package:ai_chat_bot/gen/locale_keys.g.dart';
+import 'package:ai_chat_bot/presentation/common/files_list_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 
 class ChatBarWidget extends StatefulWidget {
   const ChatBarWidget({
@@ -9,11 +11,12 @@ class ChatBarWidget extends StatefulWidget {
     required this.onSubmit,
     required this.onStop,
     required this.isStreaming,
+    this.onFileSelected,
   });
-  final Function(String) onSubmit;
+  final Function(String, List<PlatformFile>) onSubmit;
   final VoidCallback onStop;
   final bool isStreaming;
-
+  final Function(List<PlatformFile>)? onFileSelected;
   @override
   ChatBarWidgetState createState() => ChatBarWidgetState();
 }
@@ -23,6 +26,7 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
   final FocusNode focusNode = FocusNode();
 
   bool isStreaming = false;
+  List<PlatformFile> selectedFiles = [];
 
   @override
   void didUpdateWidget(ChatBarWidget oldWidget) {
@@ -57,7 +61,7 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
         return KeyEventResult.handled;
       } else {
         // Submit message when only Enter is pressed
-        widget.onSubmit(messageController.text.trim());
+        widget.onSubmit(messageController.text.trim(), selectedFiles);
         messageController.clear();
         focusNode.requestFocus();
         return KeyEventResult.handled;
@@ -92,6 +96,14 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
         ),
         child: Column(
           children: [
+            FilesListWidget(
+              selectedFiles: selectedFiles,
+              onRemove: (file) {
+                setState(() {
+                  selectedFiles.remove(file);
+                });
+              },
+            ),
             TextField(
               controller: messageController,
               keyboardType: TextInputType.multiline,
@@ -103,7 +115,7 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
               ),
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
-                  widget.onSubmit(value);
+                  widget.onSubmit(value, selectedFiles);
                   messageController.clear();
                   focusNode.requestFocus();
                 }
@@ -129,8 +141,10 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
                         : IconButton(
                             icon: const Icon(Icons.send, color: Colors.white),
                             onPressed: () {
-                              if (messageController.text.isNotEmpty) {
-                                widget.onSubmit(messageController.text);
+                              if (messageController.text.isNotEmpty ||
+                                  selectedFiles.isNotEmpty) {
+                                widget.onSubmit(
+                                    messageController.text, selectedFiles);
                                 messageController.clear();
                                 focusNode.requestFocus();
                               }
@@ -151,7 +165,22 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          IconButton(icon: const Icon(Icons.add), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.attach_file),
+            onPressed: () async {
+              final result = await FilePicker.platform.pickFiles(
+                type: FileType.any,
+                allowMultiple: true,
+              );
+
+              if (result != null && result.files.isNotEmpty) {
+                setState(() {
+                  selectedFiles.addAll(result.files);
+                });
+                widget.onFileSelected?.call(result.files);
+              }
+            },
+          ),
           IconButton(icon: const Icon(Icons.search), onPressed: () {}),
           IconButton(icon: const Icon(Icons.psychology), onPressed: () {}),
           IconButton(icon: const Icon(Icons.lightbulb), onPressed: () {}),

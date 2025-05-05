@@ -5,6 +5,7 @@ import 'package:ai_chat_bot/presentation/chat/cubit/chat_cubit.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_state.dart';
 import 'package:ai_chat_bot/presentation/chat/ui/widgets/chat_bar.dart';
 import 'package:ai_chat_bot/presentation/chat/ui/widgets/message_bubble.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,7 +23,7 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
   final List<ChatEntity> _chatHistories = [];
 
   void _handleMessageSubmit(BuildContext context, String message,
-      {int? editIndex}) async {
+      {int? editIndex, List<PlatformFile>? files}) async {
     if (editIndex != null) {
       // Remove all messages after the edited message
       _chatHistories.removeRange(editIndex + 1, _chatHistories.length);
@@ -31,6 +32,7 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
         isLoading: false,
         message: message,
         role: ChatRole.user,
+        files: files,
       );
 
       _chatHistories.add(
@@ -46,6 +48,7 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
           isLoading: false,
           message: message,
           role: ChatRole.user,
+          files: files,
         ),
         ChatEntity(
           isLoading: true,
@@ -54,7 +57,10 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
         ),
       ]);
     }
-    context.read<ChatCubit>().sendMessage(_chatHistories);
+    context.read<ChatCubit>().sendMessage(
+          chatHistories: _chatHistories,
+          files: files,
+        );
   }
 
   bool _isAtBottom = true;
@@ -136,10 +142,10 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
               current is InChattingWithBot || current is BotChatGenerateStopped,
           builder: (context, state) {
             return ChatBarWidget(
-              onSubmit: (msg) async {
+              onSubmit: (msg, files) async {
                 if (state is! InChattingWithBot) {
                   _scrollToBottom();
-                  _handleMessageSubmit(context, msg);
+                  _handleMessageSubmit(context, msg, files: files);
                 }
               },
               onStop: () {

@@ -6,3 +6,10 @@ enum ChatRole {
   @JsonValue('assistant')
   assistant,
 }
+
+enum FileType {
+  @JsonValue('pdf')
+  pdf,
+  @JsonValue('docx')
+  docx,
+}

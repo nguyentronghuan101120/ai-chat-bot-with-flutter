@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ai_chat_bot/constants/enum.dart';
 import 'package:ai_chat_bot/domain/entities/chat_entity.dart';
 import 'package:ai_chat_bot/gen/locale_keys.g.dart';
+import 'package:ai_chat_bot/presentation/common/files_list_widget.dart';
 import 'package:ai_chat_bot/presentation/common/loading_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -158,12 +159,18 @@ class _MessageContent extends StatelessWidget {
                       onSave: onEdit,
                       onCancel: onCancelEdit,
                     )
-                  else
+                  else ...[
+                    if (content.files != null)
+                      FilesListWidget(
+                        selectedFiles: content.files!,
+                        onRemove: (file) {},
+                      ),
                     _MessageText(
                       message: content.message,
                       isUser: isUser,
                       textColor: textColor,
-                    ),
+                    )
+                  ],
                 ],
               ),
       ),
