@@ -10,5 +10,5 @@ abstract class ChatRemoteSources {
 
   @POST('/chat/stream')
   @DioResponseType(ResponseType.stream)
-  Future<dynamic> streamChat(@Body() ChatRequest request);
+  Future<Response> streamChat(@Body() ChatRequest request);
 }

@@ -33,9 +33,9 @@ class ChatRepositoryImpl implements ChatRepository {
       chatSessionId: chatSessionId,
     );
 
-    final response = await _sources.streamChat(request) as ResponseBody;
+    final response = await _sources.streamChat(request);
 
-    final stream = response.stream.map((chunk) => utf8.decode(chunk));
+    final stream = response.data.stream.map((chunk) => utf8.decode(chunk));
 
     String accumulatedContent = '';
 
