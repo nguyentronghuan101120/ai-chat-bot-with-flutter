@@ -17,13 +17,20 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl(this._sources);
 
   @override
-  Stream<ChatEntity> streamChat(List<ChatEntity> messages) async* {
-    final prompt = messages
+  Stream<ChatEntity> streamChat({
+    required List<ChatEntity> messages,
+    bool? hasFile,
+    String? chatSessionId,
+  }) async* {
+    final newMessages = messages
         .map((e) => ChatMessage(role: e.role, content: e.message))
         .toList();
+    newMessages.removeWhere((e) => e.role == ChatRole.file);
 
     final ChatRequest request = ChatRequest(
-      prompt: prompt,
+      prompt: newMessages,
+      hasFile: hasFile ?? false,
+      chatSessionId: chatSessionId,
     );
 
     final response = await _sources.streamChat(request) as ResponseBody;

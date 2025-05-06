@@ -20,12 +20,14 @@ class ChatEntity extends Equatable {
     ChatRole? role,
     bool? isLoading,
     List<PlatformFile>? files,
+    String? sessionChatId,
   }) {
     return ChatEntity(
-        message: message ?? this.message,
-        role: role ?? this.role,
-        isLoading: isLoading ?? this.isLoading,
-        files: files ?? this.files);
+      message: message ?? this.message,
+      role: role ?? this.role,
+      isLoading: isLoading ?? this.isLoading,
+      files: files ?? this.files,
+    );
   }
 
   @override

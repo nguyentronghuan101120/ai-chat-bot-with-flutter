@@ -17,10 +17,15 @@ class InitialChatWidget extends StatelessWidget {
       {List<PlatformFile>? files}) {
     final chatHistory = [
       ChatEntity(
+        message: '',
+        isLoading: false,
+        role: ChatRole.file,
+        files: files,
+      ),
+      ChatEntity(
         message: message,
         isLoading: false,
         role: ChatRole.user,
-        files: files,
       ),
       ChatEntity(
         message: '',
@@ -67,7 +72,6 @@ class InitialChatWidget extends StatelessWidget {
                   isStreaming: false,
                   onSubmit: (msg, selectedFiles) =>
                       _handleMessageSubmit(context, msg, files: selectedFiles),
-                
                 ),
                 SizedBox(height: 20.h),
               ],

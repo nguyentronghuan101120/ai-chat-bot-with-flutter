@@ -1,5 +1,6 @@
 import 'package:ai_chat_bot/gen/locale_keys.g.dart';
 import 'package:ai_chat_bot/presentation/common/files_list_widget.dart';
+import 'package:ai_chat_bot/utils/show_message.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -95,6 +96,7 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
           ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FilesListWidget(
               selectedFiles: selectedFiles,
@@ -103,6 +105,7 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
                   selectedFiles.remove(file);
                 });
               },
+              isInitialChat: true,
             ),
             TextField(
               controller: messageController,
@@ -174,10 +177,30 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
               );
 
               if (result != null && result.files.isNotEmpty) {
-                setState(() {
-                  selectedFiles.addAll(result.files);
-                });
-                widget.onFileSelected?.call(result.files);
+                // Filter out duplicates
+                final newFiles = result.files
+                    .where((file) => !selectedFiles
+                        .any((f) => f.name == file.name && f.size == file.size))
+                    .toList();
+
+                if (selectedFiles.length >= 10 &&
+                    (newFiles.isNotEmpty || newFiles.length > 10) &&
+                    mounted) {
+                  ShowMessage.showError(
+                      context, 'You can only add up to 10 files at a time');
+                }
+
+                // Calculate how many files can be added
+                final availableSlots = 10 - selectedFiles.length;
+                if (availableSlots > 0) {
+                  final filesToAdd = newFiles.take(availableSlots).toList();
+                  if (filesToAdd.isNotEmpty) {
+                    setState(() {
+                      selectedFiles.addAll(filesToAdd);
+                    });
+                    widget.onFileSelected?.call(filesToAdd);
+                  }
+                }
               }
             },
           ),

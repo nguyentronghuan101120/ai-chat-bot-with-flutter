@@ -32,7 +32,6 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
         isLoading: false,
         message: message,
         role: ChatRole.user,
-        files: files,
       );
 
       _chatHistories.add(

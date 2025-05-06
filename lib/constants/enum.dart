@@ -5,6 +5,7 @@ enum ChatRole {
   user,
   @JsonValue('assistant')
   assistant,
+  file,
 }
 
 enum FileType {

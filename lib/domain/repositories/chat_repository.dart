@@ -1,5 +1,9 @@
 import 'package:ai_chat_bot/domain/entities/chat_entity.dart';
 
 abstract class ChatRepository {
-  Stream<ChatEntity> streamChat(List<ChatEntity> messages);
+  Stream<ChatEntity> streamChat({
+    required List<ChatEntity> messages,
+    String? chatSessionId,
+    bool? hasFile,
+  });
 }

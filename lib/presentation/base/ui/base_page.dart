@@ -1,3 +1,4 @@
+import 'package:ai_chat_bot/presentation/chat/ui/chat_page.dart';
 import 'package:flutter/material.dart';
 
 class BasePage extends StatelessWidget {
@@ -19,6 +20,15 @@ class BasePage extends StatelessWidget {
         child: ListView(
           children: [
             ListTile(title: Text('Chat'), onTap: () {}),
+            ListTile(
+              title: Text('New chat'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChatPage()),
+                );
+              },
+            ),
           ],
         ),
       ),

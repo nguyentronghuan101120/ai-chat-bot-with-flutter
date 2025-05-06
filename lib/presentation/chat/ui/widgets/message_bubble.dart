@@ -81,14 +81,16 @@ class MessageBubbleState extends State<MessageBubble> {
                   });
                 },
               ),
-              _MessageActions(
-                isHovered: _isHovered,
-                isEditing: _isEditing,
-                isUser: isUser,
-                onEdit: () => setState(() => _isEditing = true),
-                onResend: widget.onResend,
-                onCopy: () => _copyToClipboard(widget.content.message),
-              ),
+              if (widget.content.role != ChatRole.file &&
+                  widget.content.message.isNotEmpty)
+                _MessageActions(
+                  isHovered: _isHovered,
+                  isEditing: _isEditing,
+                  isUser: isUser,
+                  onEdit: () => setState(() => _isEditing = true),
+                  onResend: widget.onResend,
+                  onCopy: () => _copyToClipboard(widget.content.message),
+                ),
             ],
           ),
         ),
@@ -128,53 +130,58 @@ class _MessageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(16).copyWith(
-            bottomRight: isUser ? const Radius.circular(2) : null,
-            bottomLeft: !isUser ? const Radius.circular(2) : null,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(100),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: content.isLoading && !isUser
-            ? const LoadingWidget()
-            : Column(
-                crossAxisAlignment:
-                    isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                children: [
-                  if (isEditing && isUser)
-                    _EditMessageForm(
-                      controller: editController,
-                      textColor: textColor,
-                      onSave: onEdit,
-                      onCancel: onCancelEdit,
-                    )
-                  else ...[
-                    if (content.files != null)
-                      FilesListWidget(
-                        selectedFiles: content.files!,
-                        onRemove: (file) {},
+    return content.role == ChatRole.file
+        ? FilesListWidget(
+            selectedFiles: content.files!,
+            onRemove: (file) {},
+          )
+        : content.message.isEmpty && content.role == ChatRole.user
+            ? const SizedBox.shrink()
+            : Align(
+                alignment:
+                    isUser ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(16).copyWith(
+                      bottomRight: isUser ? const Radius.circular(2) : null,
+                      bottomLeft: !isUser ? const Radius.circular(2) : null,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(100),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-                    _MessageText(
-                      message: content.message,
-                      isUser: isUser,
-                      textColor: textColor,
-                    )
-                  ],
-                ],
-              ),
-      ),
-    );
+                    ],
+                  ),
+                  child: content.isLoading && !isUser
+                      ? const LoadingWidget()
+                      : Column(
+                          crossAxisAlignment: isUser
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            if (isEditing && isUser)
+                              _EditMessageForm(
+                                controller: editController,
+                                textColor: textColor,
+                                onSave: onEdit,
+                                onCancel: onCancelEdit,
+                              )
+                            else ...[
+                              _MessageText(
+                                message: content.message,
+                                isUser: isUser,
+                                textColor: textColor,
+                              )
+                            ],
+                          ],
+                        ),
+                ),
+              );
   }
 }
 
