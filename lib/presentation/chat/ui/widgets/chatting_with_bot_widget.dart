@@ -43,6 +43,13 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
       );
     } else {
       _chatHistories.addAll([
+        if (files != null)
+          ChatEntity(
+            message: '',
+            isLoading: false,
+            role: ChatRole.file,
+            files: files,
+          ),
         ChatEntity(
           isLoading: false,
           message: message,

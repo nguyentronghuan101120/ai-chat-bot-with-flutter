@@ -16,12 +16,13 @@ class InitialChatWidget extends StatelessWidget {
   void _handleMessageSubmit(BuildContext context, String message,
       {List<PlatformFile>? files}) {
     final chatHistory = [
-      ChatEntity(
-        message: '',
-        isLoading: false,
-        role: ChatRole.file,
-        files: files,
-      ),
+      if (files != null)
+        ChatEntity(
+          message: '',
+          isLoading: false,
+          role: ChatRole.file,
+          files: files,
+        ),
       ChatEntity(
         message: message,
         isLoading: false,

@@ -51,7 +51,6 @@ class MessageBubbleState extends State<MessageBubble> {
   Widget build(BuildContext context) {
     final isUser = widget.content.role == ChatRole.user;
     final textColor = isUser ? Colors.white : Colors.black;
-    final backgroundColor = isUser ? Colors.black54 : Colors.grey[100]!;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -67,7 +66,6 @@ class MessageBubbleState extends State<MessageBubble> {
                 content: widget.content,
                 isUser: isUser,
                 textColor: textColor,
-                backgroundColor: backgroundColor,
                 isEditing: _isEditing,
                 editController: _editController,
                 onEdit: (text) {
@@ -111,7 +109,6 @@ class _MessageContent extends StatelessWidget {
   final ChatEntity content;
   final bool isUser;
   final Color textColor;
-  final Color backgroundColor;
   final bool isEditing;
   final TextEditingController editController;
   final Function(String) onEdit;
@@ -121,7 +118,6 @@ class _MessageContent extends StatelessWidget {
     required this.content,
     required this.isUser,
     required this.textColor,
-    required this.backgroundColor,
     required this.isEditing,
     required this.editController,
     required this.onEdit,
@@ -144,18 +140,20 @@ class _MessageContent extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: backgroundColor,
+                    color: isUser ? Colors.lightBlueAccent : null,
                     borderRadius: BorderRadius.circular(16).copyWith(
                       bottomRight: isUser ? const Radius.circular(2) : null,
                       bottomLeft: !isUser ? const Radius.circular(2) : null,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(100),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    boxShadow: isUser
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(100),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: content.isLoading && !isUser
                       ? const LoadingWidget()

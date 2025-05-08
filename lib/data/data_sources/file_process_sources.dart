@@ -13,6 +13,6 @@ abstract class FileProcessSources {
   @POST('/upload-and-process-file')
   Future<BaseResponse<String>> uploadAndProcessFile(
     @Part() File file,
-    @Part() String? sessionChatId,
+    @Part(name: 'chat_session_id') String? chatSessionId,
   );
 }

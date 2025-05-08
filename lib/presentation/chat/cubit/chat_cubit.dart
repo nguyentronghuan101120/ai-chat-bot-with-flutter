@@ -17,23 +17,25 @@ class ChatCubit extends Cubit<ChatState> {
   final ChatRepository _chatRepository;
   final FileRepository _fileRepository;
 
-  String? _sessionChatId;
+  String? _chatSessionId;
 
   Future<void> _uploadFile({
     required List<PlatformFile> files,
   }) async {
     for (var file in files) {
-      _sessionChatId = await _fileRepository.uploadAndProcessFile(
+      final newChatSessionId = await _fileRepository.uploadAndProcessFile(
         file: file,
-        sessionChatId: _sessionChatId,
+        chatSessionId: _chatSessionId,
       );
+
+      _chatSessionId ??= newChatSessionId;
     }
   }
 
   void sendMessage({
     required List<ChatEntity> chatHistories,
     List<PlatformFile>? files,
-    String? sessionChatId,
+    String? chatSessionId,
   }) async {
     emit(InChattingWithBot(chatHistories));
 
@@ -47,7 +49,7 @@ class ChatCubit extends Cubit<ChatState> {
         .streamChat(
       messages: chatHistories,
       hasFile: files != null,
-      chatSessionId: _sessionChatId,
+      chatSessionId: _chatSessionId,
     )
         .listen(
       (event) async {

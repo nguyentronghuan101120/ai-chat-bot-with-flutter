@@ -23,9 +23,11 @@ class ChatRepositoryImpl implements ChatRepository {
     String? chatSessionId,
   }) async* {
     final newMessages = messages
+        .where((e) =>
+            e.role != ChatRole.file &&
+            !(e.role == ChatRole.assistant && e.message.isEmpty))
         .map((e) => ChatMessage(role: e.role, content: e.message))
         .toList();
-    newMessages.removeWhere((e) => e.role == ChatRole.file);
 
     final ChatRequest request = ChatRequest(
       prompt: newMessages,
@@ -33,11 +35,11 @@ class ChatRepositoryImpl implements ChatRepository {
       chatSessionId: chatSessionId,
     );
 
-    final response = await _sources.streamChat(request);
+    final response = await _sources.streamChat(request) as ResponseBody;
 
-    final stream = response.data.stream.map((chunk) => utf8.decode(chunk));
+    final stream = response.stream.map((chunk) => utf8.decode(chunk));
 
-    String accumulatedContent = '';
+    final accumulatedContentBuffer = StringBuffer();
 
     await for (final chunk in stream) {
       try {
@@ -53,19 +55,20 @@ class ChatRepositoryImpl implements ChatRepository {
             (json) => ChatResponse.fromJson(json as Map<String, dynamic>),
           );
 
-          final data = baseResponse.data;
+          final choices = baseResponse.data.choices;
 
-          if (data.choices != null && data.choices!.isNotEmpty) {
-            final delta = data.choices!.first.delta;
+          if (choices != null && choices.isNotEmpty) {
+            final delta = choices.first.delta;
+
             if (delta != null && delta.content != null) {
-              accumulatedContent += delta.content!;
+              accumulatedContentBuffer.write(delta.content);
             }
 
             final chatEntity = ChatEntity(
               role: ChatRole.assistant,
-              message: accumulatedContent.isEmpty
+              message: accumulatedContentBuffer.isEmpty
                   ? LocaleKeys.toolCallProcessing.tr()
-                  : accumulatedContent,
+                  : accumulatedContentBuffer.toString(),
               isLoading: false,
             );
 

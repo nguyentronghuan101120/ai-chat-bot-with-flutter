@@ -12,13 +12,13 @@ class FileRepositoryImpl implements FileRepository {
   @override
   Future<String> uploadAndProcessFile({
     required PlatformFile file,
-    String? sessionChatId,
+    String? chatSessionId,
   }) async {
     final fileData = File(file.path!);
 
     final response = await _sources.uploadAndProcessFile(
       fileData,
-      sessionChatId,
+      chatSessionId,
     );
 
     return response.data;

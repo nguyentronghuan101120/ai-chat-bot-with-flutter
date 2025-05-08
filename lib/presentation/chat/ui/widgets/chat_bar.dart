@@ -62,9 +62,11 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
         return KeyEventResult.handled;
       } else {
         // Submit message when only Enter is pressed
-        widget.onSubmit(messageController.text.trim(), selectedFiles);
+        widget.onSubmit(
+            messageController.text.trim(), List.from(selectedFiles));
         messageController.clear();
         focusNode.requestFocus();
+        selectedFiles.clear();
         return KeyEventResult.handled;
       }
     }
@@ -118,9 +120,10 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
               ),
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
-                  widget.onSubmit(value, selectedFiles);
+                  widget.onSubmit(value, List.from(selectedFiles));
                   messageController.clear();
                   focusNode.requestFocus();
+                  selectedFiles.clear();
                 }
               },
               focusNode: focusNode,
@@ -146,9 +149,10 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
                             onPressed: () {
                               if (messageController.text.isNotEmpty ||
                                   selectedFiles.isNotEmpty) {
-                                widget.onSubmit(
-                                    messageController.text, selectedFiles);
+                                widget.onSubmit(messageController.text,
+                                    List.from(selectedFiles));
                                 messageController.clear();
+                                selectedFiles.clear();
                                 focusNode.requestFocus();
                               }
                             },

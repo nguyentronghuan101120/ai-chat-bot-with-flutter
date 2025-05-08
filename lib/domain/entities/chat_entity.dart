@@ -20,7 +20,7 @@ class ChatEntity extends Equatable {
     ChatRole? role,
     bool? isLoading,
     List<PlatformFile>? files,
-    String? sessionChatId,
+    String? chatSessionId,
   }) {
     return ChatEntity(
       message: message ?? this.message,
