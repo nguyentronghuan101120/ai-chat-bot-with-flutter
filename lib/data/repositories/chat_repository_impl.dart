@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:ai_chat_bot/constants/enum.dart';
 import 'package:ai_chat_bot/data/data_sources/chat_remote_sources.dart';
+import 'package:ai_chat_bot/data/models/requests/cancel_chat_request.dart';
 import 'package:ai_chat_bot/data/models/requests/chat_message.dart';
 import 'package:ai_chat_bot/data/models/requests/chat_request.dart';
 import 'package:ai_chat_bot/data/models/responses/base_response.dart';
@@ -21,6 +22,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required List<ChatEntity> messages,
     bool? hasFile,
     String? chatSessionId,
+    required CancelToken cancelToken,
   }) async* {
     final newMessages = messages
         .where((e) =>
@@ -35,7 +37,8 @@ class ChatRepositoryImpl implements ChatRepository {
       chatSessionId: chatSessionId,
     );
 
-    final response = await _sources.streamChat(request) as ResponseBody;
+    final response =
+        await _sources.streamChat(request, cancelToken) as ResponseBody;
 
     final stream = response.stream.map((chunk) => utf8.decode(chunk));
 
@@ -70,6 +73,7 @@ class ChatRepositoryImpl implements ChatRepository {
                   ? LocaleKeys.toolCallProcessing.tr()
                   : accumulatedContentBuffer.toString(),
               isLoading: false,
+              chatSessionId: chatSessionId ?? baseResponse.data.id,
             );
 
             yield chatEntity;
@@ -79,6 +83,18 @@ class ChatRepositoryImpl implements ChatRepository {
         // Skip invalid JSON chunks
         rethrow;
       }
+    }
+  }
+
+  @override
+  Future<void> cancelChat({required String chatSessionId}) async {
+    try {
+      final CancelChatRequest request =
+          CancelChatRequest(chatSessionId: chatSessionId);
+
+      await _sources.cancelChat(request);
+    } catch (_) {
+      rethrow;
     }
   }
 }

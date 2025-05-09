@@ -60,7 +60,8 @@ class MessageBubbleState extends State<MessageBubble> {
         child: SizedBox(
           width: 768,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment:
+                isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               _MessageContent(
                 content: widget.content,
@@ -140,7 +141,7 @@ class _MessageContent extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isUser ? Colors.lightBlueAccent : null,
+                    color: isUser ? Colors.black54 : null,
                     borderRadius: BorderRadius.circular(16).copyWith(
                       bottomRight: isUser ? const Radius.circular(2) : null,
                       bottomLeft: !isUser ? const Radius.circular(2) : null,
@@ -174,7 +175,26 @@ class _MessageContent extends StatelessWidget {
                                 message: content.message,
                                 isUser: isUser,
                                 textColor: textColor,
-                              )
+                              ),
+                              if (content.role == ChatRole.assistant &&
+                                  content.hasCanceled)
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.remove_circle_outline,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      'User canceled',
+                                      style: TextStyle(
+                                          fontSize: 12, color: Colors.grey),
+                                    )
+                                  ],
+                                ),
                             ],
                           ],
                         ),

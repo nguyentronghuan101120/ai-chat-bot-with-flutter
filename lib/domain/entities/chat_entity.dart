@@ -7,12 +7,16 @@ class ChatEntity extends Equatable {
   final ChatRole role;
   final bool isLoading;
   final List<PlatformFile>? files;
+  final String? chatSessionId;
+  final bool hasCanceled;
 
   const ChatEntity({
     required this.message,
     required this.role,
     required this.isLoading,
     this.files,
+    this.chatSessionId,
+    this.hasCanceled = false,
   });
 
   ChatEntity copyWith({
@@ -21,12 +25,15 @@ class ChatEntity extends Equatable {
     bool? isLoading,
     List<PlatformFile>? files,
     String? chatSessionId,
+    bool? hasCanceled,
   }) {
     return ChatEntity(
       message: message ?? this.message,
       role: role ?? this.role,
       isLoading: isLoading ?? this.isLoading,
       files: files ?? this.files,
+      chatSessionId: chatSessionId ?? this.chatSessionId,
+      hasCanceled: hasCanceled ?? this.hasCanceled,
     );
   }
 

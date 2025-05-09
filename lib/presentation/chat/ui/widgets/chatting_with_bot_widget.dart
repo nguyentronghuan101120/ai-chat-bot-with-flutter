@@ -155,7 +155,7 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
                 }
               },
               onStop: () {
-                // context.read<ChatCubit>().stopChat();
+                context.read<ChatCubit>().stopChat();
               },
               isStreaming: state is InChattingWithBot,
             );

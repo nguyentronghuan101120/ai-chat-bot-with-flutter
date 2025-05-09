@@ -1,3 +1,4 @@
+import 'package:ai_chat_bot/data/models/requests/cancel_chat_request.dart';
 import 'package:ai_chat_bot/data/models/requests/chat_request.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
@@ -10,5 +11,9 @@ abstract class ChatRemoteSources {
 
   @POST('/chat/stream')
   @DioResponseType(ResponseType.stream)
-  Future<dynamic> streamChat(@Body() ChatRequest request);
+  Future<dynamic> streamChat(
+      @Body() ChatRequest request, @CancelRequest() CancelToken? cancelToken);
+
+  @POST('/chat/cancel')
+  Future<void> cancelChat(@Body() CancelChatRequest request);
 }

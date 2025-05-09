@@ -1,10 +1,13 @@
 // ignore: unused_import
 import 'dart:io';
+import 'dart:async';
 
+import 'package:ai_chat_bot/constants/enum.dart';
 import 'package:ai_chat_bot/domain/entities/chat_entity.dart';
 import 'package:ai_chat_bot/domain/repositories/chat_repository.dart';
 import 'package:ai_chat_bot/domain/repositories/file_repository.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_state.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,6 +21,8 @@ class ChatCubit extends Cubit<ChatState> {
   final FileRepository _fileRepository;
 
   String? _chatSessionId;
+  StreamSubscription<ChatEntity>? _chatStreamSubscription;
+  CancelToken _cancelToken = CancelToken();
 
   Future<void> _uploadFile({
     required List<PlatformFile> files,
@@ -39,20 +44,30 @@ class ChatCubit extends Cubit<ChatState> {
   }) async {
     emit(InChattingWithBot(chatHistories));
 
+    _cancelToken.cancel();
+
+    if (_cancelToken.isCancelled) {
+      _cancelToken = CancelToken();
+    }
+
     if (files != null) {
       await _uploadFile(
         files: files,
       );
     }
 
-    _chatRepository
+    _chatStreamSubscription?.cancel();
+    _chatStreamSubscription = _chatRepository
         .streamChat(
       messages: chatHistories,
-      hasFile: files != null,
+      hasFile: files != null && files.isNotEmpty,
       chatSessionId: _chatSessionId,
+      cancelToken: _cancelToken,
     )
         .listen(
       (event) async {
+        _chatSessionId ??= event.chatSessionId;
+
         final latestMessage = event.message;
 
         chatHistories.last = chatHistories.last.copyWith(
@@ -72,5 +87,34 @@ class ChatCubit extends Cubit<ChatState> {
       },
       cancelOnError: true,
     );
+  }
+
+  void stopChat() async {
+    if (_chatSessionId != null) {
+      try {
+        await _chatRepository.cancelChat(chatSessionId: _chatSessionId!);
+      } catch (e) {
+        emit(ChatError("Failed to cancel chat: $e"));
+      }
+    }
+    _chatStreamSubscription?.cancel();
+    _cancelToken.cancel();
+    if (state is BotChatGenerating) {
+      final currentState = state as BotChatGenerating;
+      final messages = List<ChatEntity>.from(currentState.messages);
+      if (messages.isNotEmpty && messages.last.role == ChatRole.assistant) {
+        messages[messages.length - 1] = messages.last.copyWith(
+          hasCanceled: true,
+          isLoading: false,
+        );
+      }
+      emit(BotChatGenerateStopped(messages));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _chatStreamSubscription?.cancel();
+    return super.close();
   }
 }

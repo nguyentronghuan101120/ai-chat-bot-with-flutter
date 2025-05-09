@@ -30,6 +30,12 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
   List<PlatformFile> selectedFiles = [];
 
   @override
+  void initState() {
+    super.initState();
+    isStreaming = widget.isStreaming;
+  }
+
+  @override
   void didUpdateWidget(ChatBarWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.isStreaming != oldWidget.isStreaming) {
