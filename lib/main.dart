@@ -1,4 +1,5 @@
 import 'package:ai_chat_bot/presentation/chat/ui/chat_page.dart';
+import 'package:ai_chat_bot/utils/hive_helper.dart';
 import 'package:ai_chat_bot/utils/service_locator.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+
+  await HiveHelper.init();
+  await HiveHelper.hiveRegister();
 
   ServiceLocator().setupLocator();
 

@@ -6,6 +6,7 @@ import 'package:ai_chat_bot/constants/enum.dart';
 import 'package:ai_chat_bot/domain/entities/chat_entity.dart';
 import 'package:ai_chat_bot/domain/repositories/chat_repository.dart';
 import 'package:ai_chat_bot/domain/repositories/file_repository.dart';
+import 'package:ai_chat_bot/domain/repositories/local_repository.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_state.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -15,14 +16,39 @@ class ChatCubit extends Cubit<ChatState> {
   ChatCubit(
     this._chatRepository,
     this._fileRepository,
-  ) : super(ChatInitial());
+    this._localRepository, {
+    String? initialChatSessionId,
+  }) : super(ChatInitial()) {
+    if (initialChatSessionId != null) {
+      _loadInitialChat(initialChatSessionId);
+    }
+  }
 
   final ChatRepository _chatRepository;
   final FileRepository _fileRepository;
+  final LocalRepository _localRepository;
 
   String? _chatSessionId;
   StreamSubscription<ChatEntity>? _chatStreamSubscription;
   CancelToken _cancelToken = CancelToken();
+
+  void _loadInitialChat(String initialChatSessionId) {
+    try {
+      final chatHistories =
+          _localRepository.getChatHistoryFromLocal(initialChatSessionId);
+
+      _chatSessionId = initialChatSessionId;
+
+      emit(InChattingWithBot(chatHistories));
+    } on Exception catch (e) {
+      emit(
+        ChatError(
+          e.toString(),
+        ),
+      );
+      rethrow;
+    }
+  }
 
   Future<void> _uploadFile({
     required List<PlatformFile> files,
@@ -82,7 +108,13 @@ class ChatCubit extends Cubit<ChatState> {
 
         throw Exception(error);
       },
-      onDone: () {
+      onDone: () async {
+        await _localRepository.saveChatToLocal(
+          chatHistories: chatHistories,
+          chatSessionId: _chatSessionId,
+          chatSummary:
+              chatHistories.firstWhere((e) => e.role == ChatRole.user).message,
+        );
         emit(BotChatGenerateStopped(chatHistories));
       },
       cancelOnError: true,

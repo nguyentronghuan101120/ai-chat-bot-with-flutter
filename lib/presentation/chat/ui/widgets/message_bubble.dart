@@ -50,6 +50,7 @@ class MessageBubbleState extends State<MessageBubble> {
   @override
   Widget build(BuildContext context) {
     final isUser = widget.content.role == ChatRole.user;
+    final isFile = widget.content.role == ChatRole.file;
     final textColor = isUser ? Colors.white : Colors.black;
 
     return MouseRegion(
@@ -60,8 +61,9 @@ class MessageBubbleState extends State<MessageBubble> {
         child: SizedBox(
           width: 768,
           child: Column(
-            crossAxisAlignment:
-                isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            crossAxisAlignment: isUser || isFile
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             children: [
               _MessageContent(
                 content: widget.content,

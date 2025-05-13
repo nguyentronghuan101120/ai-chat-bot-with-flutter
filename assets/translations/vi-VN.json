@@ -19,5 +19,9 @@
   "discardChanges": "Bạn có chắc chắn muốn hủy bỏ thay đổi?",
   "areYouSureYouWantToDiscardYourChanges": "Bạn có chắc chắn muốn hủy bỏ thay đổi?",
   "ok": "OK",
-  "discard": "Hủy bỏ"
+  "discard": "Hủy bỏ",
+  "dataNotFound": "Không tìm thấy dữ liệu",
+  "newChat": "Tạo cuộc trò chuyện mới",
+  "clearAllChats": "Xóa tất cả cuộc trò chuyện",
+  "clearAllChatsConfirmation": "Bạn có chắc chắn muốn xóa tất cả lịch sử cuộc trò chuyện? Hành động này không thể hoàn tác."
 }

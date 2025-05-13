@@ -19,5 +19,9 @@
   "discardChanges": "Discard Changes?",
   "areYouSureYouWantToDiscardYourChanges": "Are you sure you want to discard your changes?",
   "ok": "OK",
-  "discard": "Discard"
+  "discard": "Discard",
+  "dataNotFound": "Data not found",
+  "newChat": "New Chat",
+  "clearAllChats": "Clear All Chats",
+  "clearAllChatsConfirmation": "Are you sure you want to clear all chat history? This action cannot be undone."
 }

@@ -1,5 +1,6 @@
 import 'package:ai_chat_bot/domain/repositories/chat_repository.dart';
 import 'package:ai_chat_bot/domain/repositories/file_repository.dart';
+import 'package:ai_chat_bot/domain/repositories/local_repository.dart';
 import 'package:ai_chat_bot/presentation/chat/ui/widgets/chatting_with_bot_widget.dart';
 import 'package:ai_chat_bot/presentation/chat/ui/widgets/initial_chat_widget.dart';
 import 'package:ai_chat_bot/presentation/chat/cubit/chat_cubit.dart';
@@ -10,7 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
+  final String? initialChatSessionId;
+
+  const ChatPage({
+    super.key,
+    this.initialChatSessionId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +24,17 @@ class ChatPage extends StatelessWidget {
       create: (_) => ChatCubit(
         getIt<ChatRepository>(),
         getIt<FileRepository>(),
+        getIt<LocalRepository>(),
+        initialChatSessionId: initialChatSessionId,
       ),
       child: BlocBuilder<ChatCubit, ChatState>(
         buildWhen: (previous, current) =>
             current is InChattingWithBot || current is ChatError,
         builder: (context, state) {
           if (state is InChattingWithBot) {
-            return ChattingWithBotWidget();
+            return ChattingWithBotWidget(
+              initialChatSessionId: initialChatSessionId,
+            );
           } else if (state is ChatError) {
             return BaseErrorWidget(message: state.message);
           }

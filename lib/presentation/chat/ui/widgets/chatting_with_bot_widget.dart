@@ -12,7 +12,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ChattingWithBotWidget extends StatefulWidget {
-  const ChattingWithBotWidget({super.key});
+  final String? initialChatSessionId;
+
+  const ChattingWithBotWidget({
+    super.key,
+    this.initialChatSessionId,
+  });
 
   @override
   State<ChattingWithBotWidget> createState() => _ChattingWithBotWidgetState();
@@ -21,6 +26,12 @@ class ChattingWithBotWidget extends StatefulWidget {
 class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
   final ScrollController _scrollController = ScrollController();
   final List<ChatEntity> _chatHistories = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
 
   void _handleMessageSubmit(BuildContext context, String message,
       {int? editIndex, List<PlatformFile>? files}) async {
@@ -93,12 +104,6 @@ class _ChattingWithBotWidgetState extends State<ChattingWithBotWidget> {
         );
       }
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
   }
 
   @override
