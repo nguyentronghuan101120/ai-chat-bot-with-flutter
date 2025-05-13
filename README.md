@@ -1,43 +1,59 @@
 # AI Chat Bot
 
-A Flutter application that provides an AI-powered chat interface using OpenAI's API. This project supports multiple languages (English and Vietnamese) and offers various AI capabilities through a clean, modern UI.
+A Flutter application providing an AI-powered chat interface with AI assistance capabilities, file upload, and multi-language support (English, Vietnamese). Built with clean architecture, modern UI, and cross-platform support.
+
+---
 
 ## Features
 
-- **AI Chat Interface**: Conversational UI for interacting with OpenAI's models
-- **Multilingual Support**: Full localization for English and Vietnamese
-- **Tool Integration**: Support for various AI tools including:
-  - Image generation
-  - Weather information
-  - Stock price lookup
-  - Web page reading
-  - Research and analysis
-- **Modern UI**: Material Design 3 with responsive layout
-- **Cross-Platform**: Works on Android, iOS, web, and desktop platforms
+- **Conversational AI Chat**: Real-time chat interface with streaming responses.
+- **File Upload & Processing**: Upload files (PDF, DOCX) for AI analysis and context-aware chat.
+- **Multilingual Support**: Full localization for English and Vietnamese.
+- **Modern UI**: Material Design 3, responsive layouts for mobile and desktop.
+- **State Management**: Uses `flutter_bloc` for robust state handling.
+- **Local Chat History**: Persists chat sessions and file context using Hive.
+- **Extensible Tooling**: Designed for easy integration of additional AI tools (weather, stocks, web reading, etc.).
+- **Cross-Platform**: Runs on Android, iOS, web, and desktop.
+
+---
 
 ## Tech Stack
 
 - **Flutter**: UI framework (SDK ^3.6.0)
-- **dart_openai**: OpenAI API integration
+- **Dart**
 - **flutter_bloc**: State management
 - **equatable**: Value equality
 - **get_it**: Dependency injection
-- **flutter_screenutil**: Responsive UI
+- **hive/hive_flutter**: Local storage
+- **dio**: HTTP client
+- **retrofit**: Type-safe API client
 - **easy_localization**: Internationalization
+- **flutter_screenutil**: Responsive UI
+- **file_picker**: File selection
+- **pretty_dio_logger**: API logging
+
+---
 
 ## Project Structure
 
-The project follows a clean architecture approach with the following structure:
+```
+lib/
+├── constants/         # Enums, app-wide constants
+├── data/              # Data sources, models, repositories (API, local, file)
+│   ├── data_sources/  # Retrofit API interfaces
+│   ├── models/        # Data models (requests, responses, local)
+│   └── repositories/  # Repository implementations
+├── domain/            # Business logic, repository interfaces, entities
+├── gen/               # Generated localization keys/loaders
+├── presentation/      # UI: screens, widgets, cubits
+│   ├── base/          # Base UI components (scaffold, drawer, etc.)
+│   ├── chat/          # Chat UI, widgets, cubit/state
+│   └── common/        # Common widgets (error, loading, file list)
+├── utils/             # Utilities (Dio client, Hive helper, service locator)
+└── main.dart          # App entry point
+```
 
-- **lib/**
-  - **constants/**: Application constants and enums
-  - **data/**: Data providers and repositories
-  - **domain/**: Business logic and repository interfaces
-  - **gen/**: Generated localization files
-  - **presentation/**: UI components and screens
-    - **base/**: Base UI components
-    - **chat/**: Chat interface components
-  - **utils/**: Utility classes including OpenAI client setup and service locator
+---
 
 ## Getting Started
 
@@ -45,46 +61,65 @@ The project follows a clean architecture approach with the following structure:
 
 - Flutter SDK (^3.6.0)
 - Dart SDK
-- OpenAI API key
+- Backend API (compatible with OpenAI-style endpoints)
+- (Optional) OpenAI API key if using OpenAI directly
 
 ### Installation
 
-1. Clone the repository
-2. Install dependencies:
-   ```
+1. **Clone the repository**
+2. **Install dependencies**
+   ```sh
    flutter pub get
    ```
-3. Configure your OpenAI API key in `lib/utils/open_ai_client.dart`
-4. Run the application:
-   ```
+3. **Configure API endpoint**
+   - Edit `lib/utils/dio.dart` to set your backend base URL.
+4. **Run the application**
+   ```sh
    flutter run
    ```
 
-### Development Commands
+### File Upload & AI Integration
 
-The project includes several useful commands in the Makefile:
+- The app supports file uploads (PDF, DOCX) for context-aware chat.
+- Backend must implement `/upload-and-process-file` and `/chat/stream` endpoints (see `lib/data/data_sources/`).
 
-- `make analyze`: Run Flutter analyzer
-- `make format`: Format Dart code
-- `make format-analyze`: Format and analyze code
-- `make b`: Run build_runner to generate code
-- `make w`: Watch for changes and run build_runner
-- `make c`: Clean the project and reinstall dependencies
-- `make g`: Generate localization files
+### Localization
 
-## Localization
+- English and Vietnamese supported.
+- Translation files: `assets/translations/en-US.json`, `assets/translations/vi-VN.json`
+- To update translations, edit these files and run:
+  ```sh
+  make g
+  ```
 
-The application supports English and Vietnamese languages. Localization files are stored in:
+---
 
-- `assets/translations/en-US.json`
-- `assets/translations/vi-VN.json`
+## Development Commands
 
-To add or modify translations, edit these files and run `make g` to regenerate the localization code.
+- `make analyze` — Run Flutter analyzer
+- `make format` — Format Dart code
+- `make format-analyze` — Format and analyze code
+- `make b` — Run build_runner to generate code
+- `make w` — Watch for changes and run build_runner
+- `make c` — Clean the project and reinstall dependencies
+- `make g` — Generate localization files
+
+---
+
+## Extending Functionality
+
+- **Add new AI tools**: Implement new data sources and repositories in `lib/data/`, update domain interfaces, and connect to UI via Cubit.
+- **UI Components**: Add widgets in `lib/presentation/`.
+- **State Management**: Use `flutter_bloc` for new features.
+
+---
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please submit a Pull Request.
+
+---
 
 ## License
 
-This project is open source and available under the MIT License.
+MIT License

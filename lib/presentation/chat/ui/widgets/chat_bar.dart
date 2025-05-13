@@ -182,7 +182,8 @@ class ChatBarWidgetState extends State<ChatBarWidget> {
             icon: const Icon(Icons.attach_file),
             onPressed: () async {
               final result = await FilePicker.platform.pickFiles(
-                type: FileType.any,
+                type: FileType.custom,
+                allowedExtensions: ['pdf'],
                 allowMultiple: true,
               );
 
