@@ -34,3 +34,7 @@ c:
 g:
 	fvm flutter pub run easy_localization:generate --source-dir assets/translations -o ../gen/codegen_loader.g.dart
 	fvm flutter pub run easy_localization:generate -S assets/translations -f keys -o ../gen/locale_keys.g.dart
+
+deploy:
+	fvm flutter build web
+	firebase deploy

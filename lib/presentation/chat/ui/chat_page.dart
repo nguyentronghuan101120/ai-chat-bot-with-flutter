@@ -29,9 +29,9 @@ class ChatPage extends StatelessWidget {
       ),
       child: BlocBuilder<ChatCubit, ChatState>(
         buildWhen: (previous, current) =>
-            current is InChattingWithBot || current is ChatError,
+            current is InChattingWithBot || current is ChatError || current is BotChatGenerateStopped,
         builder: (context, state) {
-          if (state is InChattingWithBot) {
+          if (state is InChattingWithBot || state is BotChatGenerateStopped) {
             return ChattingWithBotWidget(
               initialChatSessionId: initialChatSessionId,
             );

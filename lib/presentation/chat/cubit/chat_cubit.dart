@@ -39,7 +39,8 @@ class ChatCubit extends Cubit<ChatState> {
 
       _chatSessionId = initialChatSessionId;
 
-      emit(InChattingWithBot(chatHistories));
+        emit(BotChatGenerateStopped(chatHistories));
+
     } on Exception catch (e) {
       emit(
         ChatError(
